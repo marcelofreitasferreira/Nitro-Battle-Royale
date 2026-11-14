@@ -1,0 +1,29 @@
+name: Android prototype APK
+on:
+  workflow_dispatch:
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Unity project
+        run: |
+          test -f ProjectSettings/ProjectVersion.txt || (echo "Missing Unity project settings. Import project in Unity first." && exit 1)
+          test -f Assets/Scenes/PrototypeArena.unity || (echo "Generate scene using Nitro Battle Royale/Create Prototype Arena in Unity." && exit 1)
+      - name: Build APK
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: Android
+          buildMethod: AndroidBuild.Build
+          unityVersion: auto
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: NitroBattleRoyale-Android
+          path: Builds/*.apk
+          if-no-files-found: error
