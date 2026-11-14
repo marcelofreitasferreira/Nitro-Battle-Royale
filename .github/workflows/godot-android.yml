@@ -68,7 +68,11 @@ jobs:
         working-directory: godot
         run: |
           mkdir -p build
-          godot --headless --editor --path . --export-debug "Android" build/NitroBattleRoyale-v0.3.apk
+          echo "Checking Android tools and Godot settings"
+          ls -la /opt/android-sdk/build-tools/34.0.0/ | head
+          cat "$HOME/.config/godot/editor_settings-4.tres"
+          echo "Checking Godot export validation with verbose output"
+          godot --headless --verbose --editor --path . --export-debug "Android" build/NitroBattleRoyale-v0.3.apk
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
