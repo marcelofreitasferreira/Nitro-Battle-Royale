@@ -34,6 +34,18 @@ jobs:
           JAVA_PATH="$(dirname "$(dirname "$(readlink -f "$(command -v javac)")")")"
           SDK_PATH="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/opt/android-sdk}}"
           test -d "$SDK_PATH"
+          mkdir -p /opt/android-sdk
+          wget -q "https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip" -O /tmp/android-tools.zip
+          unzip -q /tmp/android-tools.zip -d /tmp/android-cli
+          mkdir -p /opt/android-sdk/cmdline-tools/latest
+          cp -a /tmp/android-cli/cmdline-tools/. /opt/android-sdk/cmdline-tools/latest/
+          export ANDROID_HOME=/opt/android-sdk
+          export ANDROID_SDK_ROOT=/opt/android-sdk
+          export JAVA_HOME="$JAVA_PATH"
+          yes | /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=/opt/android-sdk --licenses >/dev/null || true
+          /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=/opt/android-sdk "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+          SDK_PATH=/opt/android-sdk
+          test -f /opt/android-sdk/build-tools/34.0.0/aapt2
           test -f "$HOME/.android/debug.keystore"
           mkdir -p "$HOME/.config/godot"
           cat > "$HOME/.config/godot/editor_settings-4.tres" <<EOF
