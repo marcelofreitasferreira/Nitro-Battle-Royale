@@ -71,6 +71,12 @@ jobs:
           echo "Checking Android tools and Godot settings"
           ls -la /opt/android-sdk/build-tools/34.0.0/ | head
           cat "$HOME/.config/godot/editor_settings-4.tres"
+          echo "Inspecting Android export prerequisites"
+          cat export_presets.cfg
+          ls -lh "$HOME/.local/share/godot/export_templates/4.3.stable/android_debug.apk"
+          keytool -list -keystore "$HOME/.android/debug.keystore" -storepass android -alias androiddebugkey
+          ls -l /opt/android-sdk/platforms/android-34/android.jar
+          grep -E 'export/android|java_sdk|debug_keystore' "$HOME/.config/godot/editor_settings-4.tres" || true
           echo "Checking Godot export validation with verbose output"
           godot --headless --verbose --editor --path . --export-debug "Android" build/NitroBattleRoyale-v0.3.apk
       - name: Upload APK
