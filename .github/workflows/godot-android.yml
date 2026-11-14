@@ -1,0 +1,33 @@
+name: Godot Android APK
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'godot/**'
+      - '.github/workflows/godot-android.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure Android debug signing
+        run: |
+          mkdir -p "$HOME/.android"
+          keytool -genkeypair -v -keystore "$HOME/.android/debug.keystore" -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+      - name: Import resources
+        working-directory: godot
+        run: godot --headless --editor --path . --import --quit
+      - name: Export debug APK
+        working-directory: godot
+        run: |
+          mkdir -p build
+          godot --headless --path . --export-debug "Android" build/NitroBattleRoyale-v0.3.apk
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: NitroBattleRoyale-v0.3-APK
+          path: godot/build/*.apk
+          if-no-files-found: error
