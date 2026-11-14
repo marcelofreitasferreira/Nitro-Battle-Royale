@@ -77,6 +77,15 @@ jobs:
           keytool -list -keystore "$HOME/.android/debug.keystore" -storepass android -alias androiddebugkey
           ls -l /opt/android-sdk/platforms/android-34/android.jar
           grep -E 'export/android|java_sdk|debug_keystore' "$HOME/.config/godot/editor_settings-4.tres" || true
+          echo "Checking export settings actually recognized by Godot"
+          cat > /tmp/check_export.gd <<'GDSCRIPT'
+          extends SceneTree
+          func _initialize() -> void:
+              var settings := EditorInterface.get_editor_settings()
+              for key in ["export/android/java_sdk_path", "export/android/android_sdk_path", "export/android/debug_keystore"]:
+                  print("CONFIG ", key, " = ", settings.get_setting(key))
+              quit()
+          GDSCRIPT
           echo "Checking Godot export validation with verbose output"
           godot --headless --verbose --editor --path . --export-debug "Android" build/NitroBattleRoyale-v0.3.apk
       - name: Upload APK
